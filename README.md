@@ -1,57 +1,93 @@
-# Sample Hardhat 3 Beta Project (`mocha` and `ethers`)
+# Bible Web3 EVM
 
-This project showcases a Hardhat 3 Beta project using `mocha` for tests and the `ethers` library for Ethereum interactions.
+Bem-vindo ao repositório do **Bible Web3 EVM**, um ecossistema completo de contratos inteligentes (Smart Contracts) para a rede Ethereum (EVM). Este projeto inclui a criação de um token nativo, um sistema de recompensas (staking), governança descentralizada (DAO) e certificados em formato de NFT.
 
-To learn more about the Hardhat 3 Beta, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3 Beta](https://hardhat.org/hardhat3-beta-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
+O projeto foi construído utilizando **Solidity**, framework **Hardhat**, e integrações modernas como **OpenZeppelin** e Oráculos da **Chainlink**.
 
-## Project Overview
+---
 
-This example project includes:
+## Arquitetura dos Contratos
 
-- A simple Hardhat configuration file.
-- Foundry-compatible Solidity unit tests.
-- TypeScript integration tests using `mocha` and ethers.js
-- Examples demonstrating how to connect to different types of networks, including locally simulating OP mainnet.
+O ecossistema é composto por quatro pilares principais, que interagem entre si:
 
-## Usage
+### 1. `GraceToken.sol` (Token ERC20)
+O token utilitário nativo do ecossistema, com o símbolo **GRC**.
+- Possui um suprimento inicial (mint) para o criador do contrato.
+- Apenas o proprietário (Owner) tem permissão de cunhar (mintar) novas moedas e injetar no mercado.
 
-### Running Tests
+### 2. `BibleStaking.sol` (Sistema de Recompensas)
+Permite que os usuários depositem seus `GraceToken` em "Stake" para gerar rendimento passivo.
+- Funciona como uma poupança descentralizada.
+- A taxa de recompensa atual é fixa, recompensando a lealdade dos usuários que mantêm seus tokens bloqueados.
+- Contém proteções contra ataques de reentrada (`ReentrancyGuard`).
 
-To run all the tests in the project, execute the following command:
+### 3. `BibleDAO.sol` (Governança e Votações)
+O centro de decisões comunitárias do projeto. Em vez de usar saldo líquido na carteira, o poder de voto de um membro da DAO é baseado no saldo de tokens que ele possui depositado no **BibleStaking**.
+- Membros podem criar **Propostas** com durações definidas.
+- Membros podem **Votar** a favor usando seu peso em Staking.
+- Uma vez encerrado o período de votação, a proposta pode ser executada.
 
-```shell
+### 4. `BibleBadge.sol` (Certificados NFT ERC721)
+Um sistema de emblemas/certificados que não podem ser alterados ou falsificados.
+- Utiliza a extensão `ERC721URIStorage` para armazenar metadados detalhados via IPFS.
+- O ato de mintar um certificado possui um custo fixo equivalente a **US$ 2,00** em ETH.
+- Utiliza os **Oráculos da Chainlink** (`AggregatorV3Interface`) para converter e cobrar a taxa em tempo real na cotação correta do Dólar para Ethereum.
+
+---
+
+## Como Instalar e Rodar o Projeto
+
+Este projeto requer o [Node.js](https://nodejs.org/) instalado em sua máquina.
+
+### 1. Clonando e Instalando Dependências
+Abra seu terminal e rode:
+```bash
+git clone git@github.com:josiasdev/bible-web3-evm.git
+cd bible-web3-evm
+npm install
+```
+
+### 2. Compilando os Contratos
+Para compilar todos os arquivos `.sol` usando o compilador Solidity:
+```bash
+npx hardhat compile
+```
+
+### 3. Executando a Bateria de Testes
+Toda a lógica foi rigorosamente testada (Chai/Mocha) em uma rede simulada. Para rodar todos os testes do projeto:
+```bash
 npx hardhat test
 ```
-
-You can also selectively run the Solidity or `mocha` tests:
-
-```shell
-npx hardhat test solidity
-npx hardhat test mocha
+*Se você deseja rodar testes específicos, basta apontar para o arquivo:*
+```bash
+npx hardhat test test/BibleBadge.test.js
 ```
 
-### Make a deployment to Sepolia
+---
 
-This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
+## Como fazer Deploy (Lançamento) na Rede
 
-To run the deployment to a local chain:
+As implantações (deploys) são gerenciadas pelo **Hardhat Ignition** (`ignition/modules/`).
 
-```shell
-npx hardhat ignition deploy ignition/modules/Counter.ts
+1. Crie um arquivo `.env` na raiz do projeto com suas variáveis:
+```env
+SEPOLIA_RPC_URL="SUA_URL_DO_ALCHEMY_OU_INFURA"
+SEPOLIA_PRIVATE_KEY="SUA_CHAVE_PRIVADA_DA_CARTEIRA"
 ```
 
-To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
-
-You can set the `SEPOLIA_PRIVATE_KEY` variable using the `hardhat-keystore` plugin or by setting it as an environment variable.
-
-To set the `SEPOLIA_PRIVATE_KEY` config variable using `hardhat-keystore`:
-
-```shell
-npx hardhat keystore set SEPOLIA_PRIVATE_KEY
+2. Execute o script de deploy para a rede desejada (Exemplo: Sepolia):
+```bash
+npx hardhat ignition deploy ignition/modules/NomeDoSeuModulo.ts --network sepolia
 ```
 
-After setting the variable, you can run the deployment with the Sepolia network:
+---
 
-```shell
-npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
-```
+## Ferramentas Utilizadas
+- **Hardhat**: Ambiente de desenvolvimento e testes.
+- **OpenZeppelin Contracts**: Padrões seguros de código EVM (ERC20, ERC721, Ownable, etc).
+- **Chainlink Price Feeds**: Oráculos descentralizados para conversão de moedas.
+- **Ethers.js**: Biblioteca de interação com a Blockchain.
+- **Chai**: Framework de asserções para testes.
+
+---
+*Feito com propósito e governança descentralizada.*
