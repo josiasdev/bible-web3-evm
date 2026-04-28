@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocolo Bíblia Web3</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1, h2 { color: #333; text-align: center; }
+        .card { background: #fafafa; border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+        button { background-color: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 10px;}
+        button:hover { background-color: #0056b3; }
+        input { width: calc(100% - 22px); padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        #status { text-align: center; margin-bottom: 20px; font-weight: bold; color: green; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>Bíblia Web3 - DApp</h1>
+    <div id="status">Carteira não conectada.</div>
+    <button id="btnConnect" onclick="connectWallet()">Conectar MetaMask</button>
+
+    <div class="card">
+        <h2>1. Staking de Tokens (GRC)</h2>
+        <p>Deposite seus tokens para ganhar recompensas e poder de voto.</p>
+        <input type="number" id="stakeAmount" placeholder="Quantidade de GRC">
+        <button onclick="stakeTokens()">Fazer Stake</button>
+    </div>
+
+    <div class="card">
+        <h2>2. Governança (DAO)</h2>
+        <p>Vote na Proposta ativa usando o peso do seu Staking.</p>
+        <input type="number" id="proposalId" placeholder="ID da Proposta (Ex: 1)">
+        <button onclick="voteDAO()">Votar na Proposta</button>
+    </div>
+
+    <div class="card">
+        <h2>3. Certificado NFT</h2>
+        <p>Emita seu certificado pagando a taxa do Oráculo em ETH.</p>
+        <button onclick="mintNFT()">Mintar Certificado (Pagar Taxa)</button>
+    </div>
+</div>
+
+<script>
+    let provider;
+    let signer;
+
+    const STAKING_ADDRESS = "COLOQUE_O_ENDERECO_AQUI";
+    const DAO_ADDRESS = "COLOQUE_O_ENDERECO_AQUI";
+    const NFT_ADDRESS = "COLOQUE_O_ENDERECO_AQUI";
+
+    const STAKING_ABI = [
+        "function stake(uint256 amount) external"
+    ];
+    const DAO_ABI = [
+        "function vote(uint256 _proposalId) external"
+    ];
+    const NFT_ABI = [
+        "function mintCertificate(string memory uri) public payable"
+    ];
+
+    async function connectWallet() {
+        if (window.ethereum == null) {
+            alert("Por favor, instale a extensão MetaMask!");
+            return;
+        }
+        
+        try {
+            provider = new ethers.BrowserProvider(window.ethereum);
+            signer = await provider.getSigner();
+            
+            const address = await signer.getAddress();
+            document.getElementById("status").innerText = `Conectado: ${address.substring(0,6)}...${address.substring(38)}`;
+            document.getElementById("btnConnect").style.display = "none";
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao conectar carteira.");
+        }
+    }
+
+    async function stakeTokens() {
+        if (!signer) return alert("Conecte a carteira primeiro!");
+        
+        const amountInput = document.getElementById("stakeAmount").value;
+        if (!amountInput) return alert("Digite um valor!");
+
+        try {
+            const amountWei = ethers.parseUnits(amountInput, 18);
+            
+            const stakingContract = new ethers.Contract(STAKING_ADDRESS, STAKING_ABI, signer);
+            
+            const tx = await stakingContract.stake(amountWei);
+            await tx.wait();
+            
+            alert("Stake realizado com sucesso!");
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao fazer stake. Verifique o console ou se fez o Approve.");
+        }
+    }
+
+    async function voteDAO() {
+        if (!signer) return alert("Conecte a carteira primeiro!");
+        
+        const proposalId = document.getElementById("proposalId").value;
+        if (!proposalId) return alert("Digite o ID da proposta!");
+
+        try {
+            const daoContract = new ethers.Contract(DAO_ADDRESS, DAO_ABI, signer);
+            const tx = await daoContract.vote(proposalId);
+            await tx.wait();
+            
+            alert("Voto computado com sucesso!");
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao votar. Você já votou ou não tem tokens em stake?");
+        }
+    }
+
+    async function mintNFT() {
+        if (!signer) return alert("Conecte a carteira primeiro!");
+
+        try {
+            const nftContract = new ethers.Contract(NFT_ADDRESS, NFT_ABI, signer);
+            const tokenURI = "ipfs://seu-link-de-metadados";
+            
+            const tx = await nftContract.mintCertificate(tokenURI, {
+                value: ethers.parseEther("0.001") 
+            });
+            
+            await tx.wait();
+            alert("Certificado NFT emitido com sucesso! Verifique sua carteira.");
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao mintar NFT.");
+        }
+    }
+</script>
+
+</body>
+</html>

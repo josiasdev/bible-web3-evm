@@ -82,6 +82,20 @@ npx hardhat ignition deploy ignition/modules/NomeDoSeuModulo.ts --network sepoli
 
 ---
 
+## Frontend (DApp)
+
+O projeto conta também com uma interface de usuário simplificada em HTML, CSS e JavaScript (Ethers.js v6) puro, localizada em `frontend/index.html`. 
+
+Esta interface descentralizada (DApp) permite aos usuários finais interagir com os contratos inteligentes diretamente do navegador:
+- **Conectar Carteira:** Integração direta com a extensão MetaMask.
+- **Staking:** Interface para depositar `GraceToken` no sistema de recompensas.
+- **Governança:** Formulário para participação ativa na DAO através de votação nas propostas.
+- **Certificados NFT:** Botão para mintar o BibleBadge na carteira conectada, efetuando o pagamento da taxa.
+
+Para utilizar, basta preencher as constantes de endereço de contrato (`STAKING_ADDRESS`, `DAO_ADDRESS` e `NFT_ADDRESS`) no código-fonte com os endereços gerados pelo seu deploy e abrir o arquivo `index.html` em qualquer navegador moderno.
+
+---
+
 ## Ferramentas Utilizadas
 - **Hardhat**: Ambiente de desenvolvimento e testes.
 - **OpenZeppelin Contracts**: Padrões seguros de código EVM (ERC20, ERC721, Ownable, etc).
