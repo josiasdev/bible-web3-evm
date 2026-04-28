@@ -67,7 +67,7 @@ npx hardhat test test/BibleBadge.test.js
 
 ## Como fazer Deploy (Lançamento) na Rede
 
-As implantações (deploys) são gerenciadas pelo **Hardhat Ignition** (`ignition/modules/`).
+As implantações (deploys) dos contratos são feitas através de um script automatizado.
 
 1. Crie um arquivo `.env` na raiz do projeto com suas variáveis:
 ```env
@@ -75,9 +75,9 @@ SEPOLIA_RPC_URL="SUA_URL_DO_ALCHEMY_OU_INFURA"
 SEPOLIA_PRIVATE_KEY="SUA_CHAVE_PRIVADA_DA_CARTEIRA"
 ```
 
-2. Execute o script de deploy para a rede desejada (Exemplo: Sepolia):
+2. Execute o script de deploy apontando para a rede desejada (Exemplo: Sepolia):
 ```bash
-npx hardhat ignition deploy ignition/modules/NomeDoSeuModulo.ts --network sepolia
+npx hardhat run scripts/deploy.ts --network sepolia
 ```
 
 ---
